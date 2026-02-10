@@ -12,6 +12,7 @@ Desarrollado con **Next.js 15**, **Tailwind CSS** y **Firebase**.
 - **Historial de Ventas en Vivo**: Tabla paginada que muestra las transacciones recientes en tiempo real.
 - **Reportes**: Generación de reportes CSV filtrados por fecha.
 - **Optimización**: Uso de ISR (Incremental Static Regeneration) y contadores agregados para minimizar costos de Firebase.
+- **Configuración**: Puedes apagar y encender el envío de SMS.
 
 ## 🛠️ Tecnologías
 
