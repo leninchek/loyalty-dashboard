@@ -1,0 +1,154 @@
+{
+  "entities": {
+    "Customer": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Customer",
+      "type": "object",
+      "description": "Represents a customer in the loyalty program.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Customer entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the customer."
+        },
+        "totalPointsBalance": {
+          "type": "number",
+          "description": "The total points balance for the customer."
+        },
+        "membershipLevelId": {
+          "type": "string",
+          "description": "Reference to MembershipType. (Relationship: Customer 1:1 MembershipType)"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "totalPointsBalance",
+        "membershipLevelId"
+      ]
+    },
+    "Purchase": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Purchase",
+      "type": "object",
+      "description": "Represents a purchase made by a customer.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Purchase entity."
+        },
+        "customerId": {
+          "type": "string",
+          "description": "Reference to Customer. (Relationship: Customer 1:N Purchase)"
+        },
+        "totalAmount": {
+          "type": "number",
+          "description": "The total amount of the purchase."
+        },
+        "pointsEarned": {
+          "type": "number",
+          "description": "The number of points earned from the purchase."
+        },
+        "date": {
+          "type": "string",
+          "description": "The date of the purchase.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "customerId",
+        "totalAmount",
+        "pointsEarned",
+        "date"
+      ]
+    },
+    "MembershipType": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "MembershipType",
+      "type": "object",
+      "description": "Represents a membership type.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the MembershipType entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the membership type."
+        },
+        "rewardRate": {
+          "type": "number",
+          "description": "The reward rate for the membership type."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "rewardRate"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/customers/{customerId}",
+        "definition": {
+          "entityName": "Customer",
+          "schema": {
+            "$ref": "#/backend/entities/Customer"
+          },
+          "description": "Stores customer data. Document ID is the customer ID.",
+          "params": [
+            {
+              "name": "customerId",
+              "description": "The unique identifier of the customer."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/purchases/{purchaseId}",
+        "definition": {
+          "entityName": "Purchase",
+          "schema": {
+            "$ref": "#/backend/entities/Purchase"
+          },
+          "description": "Stores purchase data. Document ID is the purchase ID.",
+          "params": [
+            {
+              "name": "purchaseId",
+              "description": "The unique identifier of the purchase."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/membershipTypes/{membershipTypeId}",
+        "definition": {
+          "entityName": "MembershipType",
+          "schema": {
+            "$ref": "#/backend/entities/MembershipType"
+          },
+          "description": "Stores membership type data. Document ID is the membership type ID.",
+          "params": [
+            {
+              "name": "membershipTypeId",
+              "description": "The unique identifier of the membership type."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to directly reflect the data model provided, optimizing for the dashboard's reporting and display requirements.  The primary goal is to support efficient queries for KPIs and data display.  Since authorization is not a core requirement in the prompt (other than implicitly assuming authenticated access to the admin dashboard, which is handled outside the scope of database rules), authorization independence via denormalization is not explicitly implemented. If fine-grained access control was required, strategies such as membership maps or path-based ownership (e.g., /users/{userId}/customers/{customerId}) would be considered.  However, given the admin dashboard context, we assume broader administrative privileges. The structure prioritizes ease of data retrieval and aggregation for reporting purposes.\n\nQAPs:\n\n1.  Total Points Liability & Total Registered Customers KPIs: Storing 'totalPointsBalance' directly in the Customer documents allows for a simple collection group query to sum all balances.  The number of customers can be obtained by a collection count.\n2.  Top 10 Customers Table:  The customer data structure supports sorting and limiting directly in the query.\n3.  Sales Report Generation:  Storing purchase data in the 'purchases' collection enables efficient data extraction for CSV generation. The 'customerId' field allows joining with the 'customers' collection, if needed.\n"
+  }
+}
