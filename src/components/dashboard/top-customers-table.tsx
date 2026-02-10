@@ -14,6 +14,26 @@ type TopCustomersTableProps = {
   customers: TopCustomer[];
 };
 
+// Helper function to determine text color based on background
+function getContrastColor(hexColor: string) {
+    if (!hexColor) return '#000000';
+    // If a leading # is provided, remove it
+    if (hexColor.slice(0, 1) === '#') {
+        hexColor = hexColor.slice(1);
+    }
+    // Convert 3-digit hex to 6-digits.
+    if (hexColor.length === 3) {
+        hexColor = hexColor.split('').map(function (hex) {
+            return hex + hex;
+        }).join('');
+    }
+    const r = parseInt(hexColor.substring(0, 2), 16);
+    const g = parseInt(hexColor.substring(2, 4), 16);
+    const b = parseInt(hexColor.substring(4, 6), 16);
+    const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+    return (yiq >= 128) ? '#000000' : '#FFFFFF';
+}
+
 export default function TopCustomersTable({ customers }: TopCustomersTableProps) {
   return (
     <Card>
@@ -43,7 +63,12 @@ export default function TopCustomersTable({ customers }: TopCustomersTableProps)
                   <TableRow key={customer.id}>
                     <TableCell className="font-medium">{customer.name}</TableCell>
                     <TableCell>
-                      <Badge variant="secondary">{customer.membershipLevelName}</Badge>
+                      <Badge style={{ 
+                        backgroundColor: customer.membershipLevelColor,
+                        color: getContrastColor(customer.membershipLevelColor) 
+                      }}>
+                        {customer.membershipLevelName}
+                      </Badge>
                     </TableCell>
                     <TableCell className="text-right">
                       {customer.totalPointsBalance.toLocaleString('es-ES')}

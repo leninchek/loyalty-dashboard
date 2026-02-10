@@ -14,6 +14,7 @@ export interface MembershipType {
   id: string;
   name: string;
   rewardRate: number;
+  color: string;
 }
 
 export interface Purchase {
@@ -26,6 +27,7 @@ export interface Purchase {
 
 export interface TopCustomer extends Customer {
   membershipLevelName: string;
+  membershipLevelColor: string;
 }
 
 // Fetches KPI data
@@ -49,9 +51,10 @@ export async function getKpis() {
 export async function getTopCustomers(): Promise<TopCustomer[]> {
   try {
     const membershipSnapshot = await getDocs(collection(db, 'MembershipTypes'));
-    const membershipMap = new Map<string, string>();
+    const membershipMap = new Map<string, { name: string; color: string }>();
     membershipSnapshot.forEach(doc => {
-      membershipMap.set(doc.id, doc.data().name);
+      const data = doc.data();
+      membershipMap.set(doc.id, { name: data.name, color: data.color });
     });
 
     const customersQuery = query(
@@ -64,10 +67,12 @@ export async function getTopCustomers(): Promise<TopCustomer[]> {
     const topCustomers: TopCustomer[] = [];
     customersSnapshot.forEach(doc => {
       const customerData = doc.data() as Omit<Customer, 'id'>;
+      const membershipInfo = membershipMap.get(customerData.membershipLevelId);
       topCustomers.push({
         id: doc.id,
         ...customerData,
-        membershipLevelName: membershipMap.get(customerData.membershipLevelId) || 'N/A',
+        membershipLevelName: membershipInfo?.name || 'N/A',
+        membershipLevelColor: membershipInfo?.color || '#808080',
       });
     });
     return topCustomers;

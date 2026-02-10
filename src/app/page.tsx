@@ -11,12 +11,12 @@ export default async function DashboardPage() {
   return (
     <div className="flex min-h-screen w-full flex-col">
       <header className="sticky top-0 z-30 flex h-auto items-center gap-4 border-b bg-background/95 px-4 py-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 sm:px-6">
-        <h1 className="text-2xl font-bold tracking-tight">Dashboard de Lealtad</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Dashboard de Loyalty App</h1>
       </header>
       <main className="flex flex-1 flex-col gap-4 p-4 sm:px-6 sm:py-4 md:gap-8">
         <div className="grid gap-4 md:grid-cols-2">
           <KpiCard
-            title="Total de Puntos sin redimir"
+            title="Total de Puntos sin Redimir"
             value={totalPointsLiability.toLocaleString('es-ES')}
             icon={<Gem className="h-5 w-5 text-muted-foreground" />}
             description="Total de puntos que los clientes pueden canjear."

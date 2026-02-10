@@ -3,8 +3,8 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'Dashboard de Lealtad',
-  description: 'Dashboard de administración para la App de Lealtad',
+  title: 'Dashboard de Loyalty App',
+  description: 'Dashboard de administración para la App Loyalty',
 };
 
 export default function RootLayout({
