@@ -7,11 +7,11 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
-import type { TopCustomer } from "@/lib/data";
+import type { Customer } from "@/lib/data";
 import { Badge } from "@/components/ui/badge";
 
 type TopCustomersTableProps = {
-  customers: TopCustomer[];
+  customers: Customer[];
 };
 
 // Helper function to determine text color based on background

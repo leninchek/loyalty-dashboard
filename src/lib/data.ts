@@ -8,6 +8,8 @@ export interface Customer {
   name: string;
   totalPointsBalance: number;
   membershipLevelId: string;
+  membershipLevelName: string;
+  membershipLevelColor: string;
 }
 
 export interface MembershipType {
@@ -23,11 +25,6 @@ export interface Purchase {
   totalAmount: number;
   pointsEarned: number;
   date: Timestamp;
-}
-
-export interface TopCustomer extends Customer {
-  membershipLevelName: string;
-  membershipLevelColor: string;
 }
 
 // Fetches KPI data
@@ -48,15 +45,8 @@ export async function getKpis() {
 }
 
 // Fetches top 10 customers
-export async function getTopCustomers(): Promise<TopCustomer[]> {
+export async function getTopCustomers(): Promise<Customer[]> {
   try {
-    const membershipSnapshot = await getDocs(collection(db, 'MembershipTypes'));
-    const membershipMap = new Map<string, { name: string; color: string }>();
-    membershipSnapshot.forEach(doc => {
-      const data = doc.data();
-      membershipMap.set(doc.id, { name: data.name, color: data.color });
-    });
-
     const customersQuery = query(
       collection(db, 'Customers'),
       orderBy('totalPointsBalance', 'desc'),
@@ -64,16 +54,16 @@ export async function getTopCustomers(): Promise<TopCustomer[]> {
     );
     const customersSnapshot = await getDocs(customersQuery);
 
-    const topCustomers: TopCustomer[] = [];
-    customersSnapshot.forEach(doc => {
-      const customerData = doc.data() as Omit<Customer, 'id'>;
-      const membershipInfo = membershipMap.get(customerData.membershipLevelId);
-      topCustomers.push({
+    const topCustomers: Customer[] = customersSnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
         id: doc.id,
-        ...customerData,
-        membershipLevelName: membershipInfo?.name || 'N/A',
-        membershipLevelColor: membershipInfo?.color || '#808080',
-      });
+        name: data.name || '',
+        totalPointsBalance: data.totalPointsBalance || 0,
+        membershipLevelId: data.membershipLevelId || '',
+        membershipLevelName: data.membershipLevelName || 'N/A',
+        membershipLevelColor: data.membershipLevelColor || '#808080',
+      };
     });
     return topCustomers;
   } catch (error) {

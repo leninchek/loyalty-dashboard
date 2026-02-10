@@ -21,13 +21,23 @@
         "membershipLevelId": {
           "type": "string",
           "description": "Reference to MembershipType. (Relationship: Customer 1:1 MembershipType)"
+        },
+        "membershipLevelName": {
+          "type": "string",
+          "description": "The name of the membership level (denormalized from MembershipType)."
+        },
+        "membershipLevelColor": {
+          "type": "string",
+          "description": "The color of the membership level (denormalized from MembershipType)."
         }
       },
       "required": [
         "id",
         "name",
         "totalPointsBalance",
-        "membershipLevelId"
+        "membershipLevelId",
+        "membershipLevelName",
+        "membershipLevelColor"
       ]
     },
     "Purchase": {
@@ -83,12 +93,17 @@
         "rewardRate": {
           "type": "number",
           "description": "The reward rate for the membership type."
+        },
+        "color": {
+          "type": "string",
+          "description": "The hexadecimal color code for the membership type."
         }
       },
       "required": [
         "id",
         "name",
-        "rewardRate"
+        "rewardRate",
+        "color"
       ]
     }
   },
@@ -149,6 +164,6 @@
         }
       }
     ],
-    "reasoning": "The Firestore structure is designed to directly reflect the data model provided, optimizing for the dashboard's reporting and display requirements.  The primary goal is to support efficient queries for KPIs and data display.  Since authorization is not a core requirement in the prompt (other than implicitly assuming authenticated access to the admin dashboard, which is handled outside the scope of database rules), authorization independence via denormalization is not explicitly implemented. If fine-grained access control was required, strategies such as membership maps or path-based ownership (e.g., /users/{userId}/customers/{customerId}) would be considered.  However, given the admin dashboard context, we assume broader administrative privileges. The structure prioritizes ease of data retrieval and aggregation for reporting purposes.\n\nQAPs:\n\n1.  Total Points Liability & Total Registered Customers KPIs: Storing 'totalPointsBalance' directly in the Customer documents allows for a simple collection group query to sum all balances.  The number of customers can be obtained by a collection count.\n2.  Top 10 Customers Table:  The customer data structure supports sorting and limiting directly in the query.\n3.  Sales Report Generation:  Storing purchase data in the 'purchases' collection enables efficient data extraction for CSV generation. The 'customerId' field allows joining with the 'customers' collection, if needed.\n"
+    "reasoning": "The Firestore structure is designed to directly reflect the data model provided, optimizing for the dashboard's reporting and display requirements. The primary goal is to support efficient queries for KPIs and data display. To improve query performance and simplify client-side logic, we have denormalized the `name` and `color` fields from the `MembershipType` collection into the `Customer` documents. This avoids the need for a client-side join when displaying customer information with their membership tier. The tradeoff is that updating a membership type's name or color will require a script to update all corresponding customer documents, but this is considered an acceptable tradeoff for this application. Since authorization is not a core requirement in the prompt (other than implicitly assuming authenticated access to the admin dashboard, which is handled outside the scope of database rules), authorization independence is not explicitly implemented. The structure prioritizes ease of data retrieval and aggregation for reporting purposes.\n\nQAPs:\n\n1.  Total Points Liability & Total Registered Customers KPIs: Storing 'totalPointsBalance' directly in the Customer documents allows for a simple collection group query to sum all balances.  The number of customers can be obtained by a collection count.\n2.  Top 10 Customers Table:  The denormalized customer data structure allows fetching top customers with a single, simple query, without needing to join with other collections.\n3.  Sales Report Generation:  Storing purchase data in the 'purchases' collection enables efficient data extraction for CSV generation. The 'customerId' field allows joining with the 'customers' collection, if needed.\n"
   }
 }
