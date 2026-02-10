@@ -47,15 +47,6 @@ export async function getKpis() {
 // Fetches top 10 customers
 export async function getTopCustomers(): Promise<Customer[]> {
   try {
-    const membershipTypesSnapshot = await getDocs(collection(db, 'membershipTypes'));
-    const membershipTypesMap = new Map<string, { name: string; color: string }>();
-    membershipTypesSnapshot.forEach(doc => {
-      membershipTypesMap.set(doc.id, {
-        name: doc.data().name || 'N/A',
-        color: doc.data().color || '#808080',
-      });
-    });
-
     const customersQuery = query(
       collection(db, 'customers'),
       orderBy('totalPointsBalance', 'desc'),
@@ -65,15 +56,13 @@ export async function getTopCustomers(): Promise<Customer[]> {
 
     const topCustomers: Customer[] = customersSnapshot.docs.map(doc => {
       const data = doc.data();
-      const membershipInfo = membershipTypesMap.get(data.membershipLevelId) || { name: 'N/A', color: '#808080' };
-
       return {
         id: doc.id,
         name: data.name || '',
         totalPointsBalance: data.totalPointsBalance || 0,
         membershipLevelId: data.membershipLevelId || '',
-        membershipLevelName: membershipInfo.name,
-        membershipLevelColor: membershipInfo.color,
+        membershipLevelName: data.membershipLevelName || 'N/A',
+        membershipLevelColor: data.membershipLevelColor || '#808080',
       };
     });
     return topCustomers;
