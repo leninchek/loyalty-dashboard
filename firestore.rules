@@ -1,126 +1,19 @@
-/**
- * This Firestore Security Ruleset is designed for an internal administrative
- * dashboard.
- *
- * Core Philosophy:
- * The rules enforce a strict "Authenticated Read, Admin Write" security model.
- * It is assumed that all data is for internal use by authenticated staff.
- * Therefore, any signed-in user is granted read-only access to all data,
- * which is suitable for reporting and display on a dashboard. Write access
- * (create, update, delete) is completely disabled by default because the
- * current data model lacks a mechanism to identify administrative users (e.g.,
- * a custom claim or a roles collection). This creates a secure-by-default
- * posture, requiring explicit implementation of an admin verification system
- * before any data can be modified.
- *
- * Data Structure:
- * The data is organized into three separate top-level collections:
- * - /customers: Stores all customer profiles.
- * - /purchases: Stores all purchase records.
- * - /membershipTypes: Stores configuration data for membership tiers.
- * This flat structure is simple and optimized for direct queries.
- *
- * Key Security Decisions:
- * - Authenticated Access Only: No public or anonymous access is permitted. A user
- *   must be signed in to perform any action.
- * - Read-Only by Default: All authenticated users can read data from any
- *   collection to populate the dashboard, but no authenticated user can
- *   modify data.
- * - Writes Locked Pending Admin Implementation: All write operations are
- *   explicitly denied. The rules include commented-out suggestions (TODOs)
- *   for how to enable admin-only writes once a role system is implemented,
- *   for instance, using custom claims.
- * - No User-Specific Data Ownership: The collections are not structured under
- *   a specific user's path (e.g., /users/{userId}/customers), and the documents
- *   lack 'ownerId' fields. The security model is global (all authenticated
- *   users) rather than per-user.
- */
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper Functions
-    /**
-     * Checks if the user is authenticated. This is the baseline for all access.
-     */
-    function isSignedIn() {
-      return request.auth != null;
-    }
-
-    /**
-     * @description
-     *   Rules for the 'customers' collection. This data is considered internal
-     *   and is readable by any authenticated staff member for dashboard purposes.
-     *   Writes are disabled pending implementation of an admin role check.
-     * @path
-     *   /customers/{customerId}
-     * @allow
-     *   An authenticated user (e.g., auth.uid: 'staff_abc') can read a customer
-     *   document (get) or list all customers (list).
-     * @deny
-     *   An authenticated user attempts to create a new customer document (create).
-     *   This is denied because there is no way to verify if they are an admin.
-     * @principle
-     *   Enforces a "read-only for authenticated users" policy, locking down all
-     *   write operations until a secure admin verification mechanism is added.
-     */
-    match /customers/{customerId} {
-      allow get: if isSignedIn();
-      allow list: if isSignedIn();
-      allow create: if false; // TODO: Replace with admin check, e.g., `isAdmin()`
-      allow update: if false; // TODO: Replace with admin check, e.g., `isAdmin()`
-      allow delete: if false; // TODO: Replace with admin check, e.g., `isAdmin()`
-    }
-
-    /**
-     * @description
-     *   Rules for the 'purchases' collection. Purchase records are readable by
-     *   any authenticated staff member for sales reports and analytics. Writes
-     *   are disabled as they should only be performed by authorized personnel.
-     * @path
-     *   /purchases/{purchaseId}
-     * @allow
-     *   An authenticated user (e.g., auth.uid: 'staff_abc') can read a specific
-     *   purchase record (get) or list all purchases for a report (list).
-     * @deny
-     *   An authenticated user attempts to delete a purchase record (delete). This
-     *   is a high-privilege action reserved for administrators.
-     * @principle
-     *   Provides read access for internal reporting while preventing any data
-     *   modification by default, ensuring data integrity.
-     */
-    match /purchases/{purchaseId} {
-      allow get: if isSignedIn();
-      allow list: if isSignedIn();
-      allow create: if false; // TODO: Replace with admin check, e.g., `isAdmin()`
-      allow update: if false; // TODO: Replace with admin check, e.g., `isAdmin()`
-      allow delete: if false; // TODO: Replace with admin check, e.g., `isAdmin()`
-    }
-
-    /**
-     * @description
-     *   Rules for the 'membershipTypes' collection. This is considered app
-     *   configuration data. It is readable by any authenticated user but should
-     *   only be modifiable by administrators.
-     * @path
-     *   /membershipTypes/{membershipTypeId}
-     * @allow
-     *   An authenticated user (e.g., auth.uid: 'staff_abc') can read the details
-     *   of the "Gold" membership tier (get).
-     * @deny
-     *   An authenticated user attempts to change the reward rate on a membership
-     *   tier (update). This is denied to prevent unauthorized changes to the app's
-     *   business logic.
-     * @principle
-     *   Protects critical application configuration by making it globally readable
-     *   for internal systems but restricting modifications to administrators.
-     */
-    match /membershipTypes/{membershipTypeId} {
-      allow get: if isSignedIn();
-      allow list: if isSignedIn();
-      allow create: if false; // TODO: Replace with admin check, e.g., `isAdmin()`
-      allow update: if false; // TODO: Replace with admin check, e.g., `isAdmin()`
-      allow delete: if false; // TODO: Replace with admin check, e.g., `isAdmin()`
+    // This rule allows anyone with your Firestore database reference to view, edit,
+    // and delete all data in your Firestore database. It is useful for getting
+    // started, but it is configured to expire after 30 days because it
+    // leaves your app open to attackers. At that time, all client
+    // requests to your Firestore database will be denied.
+    //
+    // Make sure to write security rules for your app before that time, or else
+    // all client requests to your Firestore database will be denied until you Update
+    // your rules
+    match /{document=**} {
+      allow read, write: if request.time < timestamp.date(2026, 2, 26);
     }
   }
 }

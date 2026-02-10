@@ -70,8 +70,8 @@ export default function TopCustomersTable({ customers }: TopCustomersTableProps)
                         {customer.membershipLevelName}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-right">
-                      {customer.totalPointsBalance.toLocaleString('es-ES')}
+                    <TableCell className="text-right" suppressHydrationWarning>
+                      {customer.totalPointsBalance.toLocaleString('es-MX')}
                     </TableCell>
                   </TableRow>
                 ))

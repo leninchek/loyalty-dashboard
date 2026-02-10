@@ -3,9 +3,9 @@ import type { ReactNode } from "react";
 
 type KpiCardProps = {
   title: string;
-  value: string;
+  value: ReactNode;
   icon: ReactNode;
-  description?: string;
+  description?: ReactNode;
 };
 
 export default function KpiCard({ title, value, icon, description }: KpiCardProps) {

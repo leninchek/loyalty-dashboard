@@ -1,0 +1,29 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "Purchases",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "customerId", "order": "ASCENDING" },
+        { "fieldPath": "date", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "Redemptions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "customerId", "order": "ASCENDING" },
+        { "fieldPath": "date", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "Customers",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "membershipLevelId", "order": "ASCENDING" },
+        { "fieldPath": "totalPointsBalance", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
