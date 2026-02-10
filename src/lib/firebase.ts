@@ -1,14 +1,14 @@
 import { initializeApp, getApps, type FirebaseApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 
-// TODO: Replace with your app's Firebase project configuration
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID",
+  apiKey: "AIzaSyC_NS2-xT3_Yg0ZuIOo5A5TC-i0xFs4tn4",
+  authDomain: "loyalty-redemption.firebaseapp.com",
+  projectId: "loyalty-redemption",
+  storageBucket: "loyalty-redemption.firebasestorage.app",
+  messagingSenderId: "201458808631",
+  appId: "1:201458808631:web:40669a1db272d8a373ccb2",
+  measurementId: "G-4CS1C9DZY5"
 };
 
 // Initialize Firebase
