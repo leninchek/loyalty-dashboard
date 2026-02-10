@@ -2,13 +2,11 @@ import 'server-only';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, limit, type Timestamp, doc, getDoc, where, startAfter } from 'firebase/firestore';
 
-// Data shapes based on user's description and iOS models
 export interface Customer {
   id: string;
   name: string;
   totalPointsBalance: number;
   membershipLevelId: string;
-  // Denormalized fields for UI display, populated manually
   membershipLevelName: string;
   membershipLevelColor: string;
 }
@@ -23,16 +21,14 @@ export interface MembershipType {
 export interface Purchase {
   id: string;
   customerId: string;
-  customerName?: string; // Added for report readability
+  customerName?: string;
   totalAmount: number;
   pointsEarned: number;
   date: Timestamp;
 }
 
-// Helper to fetch membership levels for joining
 async function getMembershipLevelsMap(): Promise<Record<string, MembershipType>> {
   try {
-    // iOS App uses 'MembershipTypes' collection based on Constants.swift
     const snapshot = await getDocs(collection(db, 'MembershipTypes'));
     const levels: Record<string, MembershipType> = {};
     
@@ -54,7 +50,6 @@ async function getMembershipLevelsMap(): Promise<Record<string, MembershipType>>
   }
 }
 
-// Helper to fetch point value configuration
 async function getPointValue(): Promise<number> {
   try {
     const docRef = doc(db, 'Configuration', 'general');
@@ -69,10 +64,8 @@ async function getPointValue(): Promise<number> {
   }
 }
 
-// Fetches KPI data
 export async function getKpis() {
   try {
-    // Fetch aggregated stats (Optimized)
     const statsDoc = await getDoc(doc(db, 'Stats', 'general'));
     
     let totalCustomers = 0;
@@ -90,15 +83,12 @@ export async function getKpis() {
     return { totalCustomers, totalPointsLiability, totalLiabilityValue };
   } catch (error) {
     console.error("Error fetching KPIs:", error);
-    // On error, return zero values to prevent breaking the page.
     return { totalCustomers: 0, totalPointsLiability: 0, totalLiabilityValue: 0 };
   }
 }
 
-// Fetches top 10 customers
 export async function getTopCustomers(): Promise<Customer[]> {
   try {
-    // Fetch membership levels first to join data
     const membershipLevels = await getMembershipLevelsMap();
 
     const customersQuery = query(
@@ -129,7 +119,6 @@ export async function getTopCustomers(): Promise<Customer[]> {
   }
 }
 
-// Fetches all purchase data for the CSV report
 export async function getSalesForReport(startDate?: Date, endDate?: Date): Promise<(Omit<Purchase, 'date'> & { date: { seconds: number, nanoseconds: number } })[]> {
   try {
     let q = query(collection(db, 'Purchases'), orderBy('date', 'desc'));
@@ -152,7 +141,6 @@ export async function getSalesForReport(startDate?: Date, endDate?: Date): Promi
         customerName: data.customerName || 'Desconocido',
         totalAmount: data.totalAmount,
         pointsEarned: data.pointsEarned,
-        // Firestore Timestamps need to be converted to a serializable format for Server Actions
         date: {
           seconds: data.date.seconds,
           nanoseconds: data.date.nanoseconds,
@@ -166,7 +154,6 @@ export async function getSalesForReport(startDate?: Date, endDate?: Date): Promi
   }
 }
 
-// Fetches paginated sales data for UI display (Future use)
 export async function getSalesPaginated(limitCount: number = 20, lastDocId?: string) {
   try {
     let q = query(collection(db, 'Purchases'), orderBy('date', 'desc'), limit(limitCount));

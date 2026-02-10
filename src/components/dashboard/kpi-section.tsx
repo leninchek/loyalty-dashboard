@@ -14,14 +14,12 @@ export default function KpiSection() {
   useEffect(() => {
     if (!db) return;
 
-    // Subscribe to Stats
     const unsubStats = onSnapshot(doc(db, "Stats", "general"), (doc) => {
       if (doc.exists()) {
         setStats(doc.data() as any);
       }
     });
 
-    // Subscribe to Configuration
     const unsubConfig = onSnapshot(doc(db, "Configuration", "general"), (doc) => {
       if (doc.exists()) {
         setPointValue(doc.data()?.pointValue || 0);

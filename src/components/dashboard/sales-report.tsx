@@ -20,7 +20,6 @@ export default function SalesReport() {
     setIsLoading(true);
     try {
       const start = startDate ? new Date(startDate).getTime() : undefined;
-      // Set end date to end of day
       const end = endDate ? new Date(endDate + 'T23:59:59').getTime() : undefined;
 
       const salesData = await getSalesData(start, end);

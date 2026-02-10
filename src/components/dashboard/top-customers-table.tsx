@@ -14,14 +14,11 @@ type TopCustomersTableProps = {
   customers: Customer[];
 };
 
-// Helper function to determine text color based on background
 function getContrastColor(hexColor: string) {
     if (!hexColor) return '#000000';
-    // If a leading # is provided, remove it
     if (hexColor.slice(0, 1) === '#') {
         hexColor = hexColor.slice(1);
     }
-    // Convert 3-digit hex to 6-digits.
     if (hexColor.length === 3) {
         hexColor = hexColor.split('').map(function (hex) {
             return hex + hex;

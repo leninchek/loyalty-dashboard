@@ -14,7 +14,6 @@ export default function TopCustomersSection() {
   useEffect(() => {
     if (!db) return;
 
-    // Subscribe to MembershipTypes
     const unsubMemberships = onSnapshot(collection(db, "MembershipTypes"), (snapshot) => {
       const levels: Record<string, MembershipType> = {};
       snapshot.forEach((doc) => {
@@ -29,7 +28,6 @@ export default function TopCustomersSection() {
       setMembershipLevels(levels);
     });
 
-    // Subscribe to Top Customers
     const q = query(
       collection(db, "Customers"),
       orderBy("totalPointsBalance", "desc"),
