@@ -6,8 +6,6 @@ import { useRouter, usePathname } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { getApp } from "firebase/app";
 
-// Inicializamos Auth (asumiendo que Firebase ya está inicializado en tu ClientProvider)
-// Si da error, asegúrate de importar tu 'app' inicializada aquí
 const auth = getAuth(getApp());
 
 const AuthContext = createContext<{ user: User | null; loading: boolean }>({
@@ -28,12 +26,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(currentUser);
       setLoading(false);
 
-      // REDIRECCIÓN INTELIGENTE
       if (!currentUser && pathname !== "/login") {
-        // Si no hay usuario y no estás en login -> Vete al login
         router.push("/login");
       } else if (currentUser && pathname === "/login") {
-        // Si YA hay usuario y estás en login -> Vete al dashboard
         router.push("/");
       }
     });

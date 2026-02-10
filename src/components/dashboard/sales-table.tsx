@@ -32,10 +32,8 @@ export default function SalesTable() {
 
   useEffect(() => {
     if (!db) {
-      console.log("SalesTable: DB not ready yet");
       return;
     }
-    console.log("SalesTable: Subscribing to Purchases...");
 
     const q = query(
       collection(db, "Purchases"),
@@ -44,7 +42,6 @@ export default function SalesTable() {
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      console.log(`SalesTable: Snapshot received with ${snapshot.size} docs`);
       const newSales = snapshot.docs.map((doc) => {
         const data = doc.data();
         return {
@@ -59,7 +56,6 @@ export default function SalesTable() {
       setSales(newSales);
       setLoading(false);
       
-      // Simple check: if we got fewer docs than requested, we reached the end
       if (snapshot.size < limitCount) {
         setHasMore(false);
       } else {
