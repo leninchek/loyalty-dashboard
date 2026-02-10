@@ -30,7 +30,7 @@ export interface Purchase {
 // Fetches KPI data
 export async function getKpis() {
   try {
-    const customersSnapshot = await getDocs(collection(db, 'Customers'));
+    const customersSnapshot = await getDocs(collection(db, 'customers'));
     const totalCustomers = customersSnapshot.size;
     let totalPointsLiability = 0;
     customersSnapshot.forEach(doc => {
@@ -47,8 +47,17 @@ export async function getKpis() {
 // Fetches top 10 customers
 export async function getTopCustomers(): Promise<Customer[]> {
   try {
+    const membershipTypesSnapshot = await getDocs(collection(db, 'membershipTypes'));
+    const membershipTypesMap = new Map<string, { name: string; color: string }>();
+    membershipTypesSnapshot.forEach(doc => {
+      membershipTypesMap.set(doc.id, {
+        name: doc.data().name || 'N/A',
+        color: doc.data().color || '#808080',
+      });
+    });
+
     const customersQuery = query(
-      collection(db, 'Customers'),
+      collection(db, 'customers'),
       orderBy('totalPointsBalance', 'desc'),
       limit(10)
     );
@@ -56,13 +65,15 @@ export async function getTopCustomers(): Promise<Customer[]> {
 
     const topCustomers: Customer[] = customersSnapshot.docs.map(doc => {
       const data = doc.data();
+      const membershipInfo = membershipTypesMap.get(data.membershipLevelId) || { name: 'N/A', color: '#808080' };
+
       return {
         id: doc.id,
         name: data.name || '',
         totalPointsBalance: data.totalPointsBalance || 0,
         membershipLevelId: data.membershipLevelId || '',
-        membershipLevelName: data.membershipLevelName || 'N/A',
-        membershipLevelColor: data.membershipLevelColor || '#808080',
+        membershipLevelName: membershipInfo.name,
+        membershipLevelColor: membershipInfo.color,
       };
     });
     return topCustomers;
@@ -75,7 +86,7 @@ export async function getTopCustomers(): Promise<Customer[]> {
 // Fetches all purchase data for the CSV report
 export async function getSalesForReport(): Promise<Omit<Purchase, 'date'> & { date: { seconds: number, nanoseconds: number } }[]> {
   try {
-    const purchasesSnapshot = await getDocs(query(collection(db, 'Purchases'), orderBy('date', 'desc')));
+    const purchasesSnapshot = await getDocs(query(collection(db, 'purchases'), orderBy('date', 'desc')));
     const purchases: any[] = [];
     purchasesSnapshot.forEach(doc => {
       const data = doc.data();
